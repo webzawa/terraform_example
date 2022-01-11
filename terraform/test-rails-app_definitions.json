@@ -1,0 +1,104 @@
+[
+  {
+    "name": "rails",
+    "image": "012345678901.dkr.ecr.ap-northeast-1.amazonaws.com/rails-test-rails-app:latest",
+    "environment": [
+      {
+        "name": "RAILS_MASTER_KEY",
+        "value": "${rails_master_key}"
+      },
+      {
+        "name": "STRIPE_PRO_PUBLISHABLE_KEY",
+        "value": "${stripe_pro_publishable_key}"
+      },
+      {
+        "name": "STRIPE_PRO_SECRET_KEY",
+        "value": "${stripe_pro_secret_key}"
+      },
+      {
+        "name": "DB_HOSTNAME",
+        "value": "${db_hostname}"
+      },
+      {
+        "name": "DB_NAME",
+        "value": "${db_name}"
+      },
+      {
+        "name": "DB_PASSWORD",
+        "value": "${db_password}"
+      },
+      {
+        "name": "DB_USERNAME",
+        "value": "${db_username}"
+      },
+      {
+        "name": "RAILS_ENV",
+        "value": "${rails_env}"
+      },
+      {
+        "name": "RAILS_SERVE_STATIC_FILES",
+        "value": "${rails_serve_static_files}"
+      }
+    ],
+    "portMappings": [
+      {
+        "containerPort": 3000,
+        "hostPort": 0
+      }
+    ],
+    "command": [
+      "bundle",
+      "exec",
+      "puma",
+      "-C",
+      "config/puma.rb"
+    ],
+    "workingDirectory": "/app",
+    "mountPoints": [
+      {
+        "readOnly": null,
+        "containerPath": "/app/tmp/sockets",
+        "sourceVolume": "sockets"
+      }
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-region": "ap-northeast-1",
+        "awslogs-stream-prefix": "rails",
+        "awslogs-group": "/ecs/test-rails-app/rails"
+      }
+    }
+  },
+  {
+    "name": "nginx",
+    "image": "012345678901.dkr.ecr.ap-northeast-1.amazonaws.com/nginx-test-rails-app:latest",
+    "portMappings": [
+      {
+        "containerPort": 80,
+        "hostPort": 0
+      }
+    ],
+    "volumesFrom": [
+      {
+        "sourceContainer": "rails",
+        "readOnly": false
+      }
+    ],
+    "mountPoints": [
+      {
+        "readOnly": null,
+        "containerPath": "/app/tmp/sockets",
+        "sourceVolume": "sockets"
+      }
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-region": "ap-northeast-1",
+        "awslogs-stream-prefix": "nginx",
+        "awslogs-group": "/ecs/test-rails-app/nginx"
+      }
+    }
+  }
+]
